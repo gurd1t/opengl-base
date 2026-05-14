@@ -1,12 +1,12 @@
-#include "include/glad/glad.h"
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "include/math_3d.hpp"
+#include <math_3d.hpp>
 #include <cmath>
 #include <iostream>
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+constexpr unsigned int SCR_WIDTH = 800;
+constexpr unsigned int SCR_HEIGHT = 600;
 
 unsigned int VAO, VBO;
 unsigned int gWorldLocation;
