@@ -69,8 +69,8 @@ void processInput(GLFWwindow *window) {
 // Shader Compilation
 // ============================================
 
-unsigned int createShader(unsigned int type, const char *source) {
-  unsigned int shader = glCreateShader(type);
+unsigned int createShader(const unsigned int type, const char *source) {
+  const unsigned int shader = glCreateShader(type);
 
   glShaderSource(shader, 1, &source, nullptr);
   glCompileShader(shader);
