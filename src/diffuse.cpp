@@ -11,8 +11,11 @@
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+
 void processInput(GLFWwindow *window);
 
 // settings
@@ -121,6 +124,7 @@ int main() {
         -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f
     };
+
     // first, configure the cube's VAO (and VBO)
     unsigned int VBO, cubeVAO;
     glGenVertexArrays(1, &cubeVAO);
@@ -132,10 +136,10 @@ int main() {
     glBindVertexArray(cubeVAO);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), static_cast<void *>(nullptr));
     glEnableVertexAttribArray(0);
     // normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
 
@@ -146,7 +150,7 @@ int main() {
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // note that we update the lamp's position attribute's stride to reflect the updated buffer data
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), static_cast<void *>(nullptr));
     glEnableVertexAttribArray(0);
 
 
@@ -168,17 +172,19 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // be sure to activate shader when setting uniforms/drawing objects
-        lightingShader.use();
-        lightingShader.setVec3Uniform("objectColor", 1.0f, 0.5f, 0.31f);
-        lightingShader.setVec3Uniform("lightColor", 1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3Uniform("lightPos", lightPos);
-
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
                                                 static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f,
                                                 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
+
+        // be sure to activate shader when setting uniforms/drawing objects
+        lightingShader.use();
+        lightingShader.setVec3Uniform("objectColor", 0.0f, 0.5f, 0.31f);
+        lightingShader.setVec3Uniform("lightColor", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3Uniform("lightPos", lightPos);
+        lightingShader.setVec3Uniform("viewPos", camera.Position);
+
         lightingShader.setMat4Uniform("projection", projection);
         lightingShader.setMat4Uniform("view", view);
 
@@ -228,14 +234,30 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    glm::vec3 movement(0.0f);
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        movement += camera.Front;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        movement -= camera.Front;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        movement += camera.Right;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        movement -= camera.Right;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        movement += camera.Up;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        movement -= camera.Up;
+
+    if (glm::length(movement) > 0.0f) {
+        movement = glm::normalize(movement);
+        float velocity = camera.MovementSpeed * deltaTime;
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            velocity *= camera.MovementSpeedMultiplier;
+
+        camera.Position += movement * velocity;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
