@@ -10,13 +10,17 @@ enum Camera_Movement {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    UP,
+    DOWN,
+    L_SHIFT,
 };
 
 // Default camera values
 constexpr float YAW = -90.0f;
 constexpr float PITCH = 0.0f;
 constexpr float SPEED = 2.5f;
+constexpr float SPEED_MULTIPLIER = 2.0f;
 constexpr float SENSITIVITY = 0.1f;
 constexpr float ZOOM = 45.0f;
 
@@ -35,6 +39,7 @@ public:
     float Pitch;
     // camera options
     float MovementSpeed;
+    float MovementSpeedMultiplier;
     float MouseSensitivity;
     float Zoom;
 
@@ -53,6 +58,7 @@ public:
           Yaw(yaw),
           Pitch(pitch),
           MovementSpeed(SPEED),
+          MovementSpeedMultiplier(SPEED_MULTIPLIER),
           MouseSensitivity(SENSITIVITY),
           Zoom(ZOOM) {
         updateCameraVectors();
