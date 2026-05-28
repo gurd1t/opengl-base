@@ -76,7 +76,7 @@ int main() {
     // ------------------------------------
     const Shader modelShader("../src/1.model_loading.vs", "../src/1.model_loading.fs");
 
-    const Model modelObj("../src/cube.glb");
+    const Model modelObj("../res/cube.obj");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
