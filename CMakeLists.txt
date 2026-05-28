@@ -11,9 +11,11 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
 add_executable(prog
-#        src/main.cpp
         src/glad.c
-        src/diffuse.cpp
+#        src/main.cpp
+        # src/diffuse.cpp
+        # src/material.cpp
+        src/assimp.cpp
 )
 
 target_include_directories(prog PRIVATE include)
@@ -21,4 +23,5 @@ target_include_directories(prog PRIVATE include)
 target_link_libraries(prog PRIVATE
         glfw
         OpenGL::GL
+        assimp
 )

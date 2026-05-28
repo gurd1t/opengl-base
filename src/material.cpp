@@ -36,13 +36,9 @@ int main() {
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
 
     // glfw window creation
     // --------------------
@@ -73,7 +69,7 @@ int main() {
 
     // build and compile our shader z program
     // ------------------------------------
-    const Shader lightingShader("../src/2.1.basic_lighting.vs", "../src/2.1.basic_lighting.fs");
+    const Shader lightingShader("../src/3.1.materials.vs", "../src/3.1.materials.fs");
     const Shader lightCubeShader("../src/2.1.light_cube.vs", "../src/2.1.light_cube.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -177,17 +173,31 @@ int main() {
 
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
-        lightingShader.setVec3Uniform("objectColor", 0.0f, 0.5f, 0.31f);
-        lightingShader.setVec3Uniform("lightColor", 1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3Uniform("lightPos", lightPos);
+        lightingShader.setVec3Uniform("light.position", lightPos);
         lightingShader.setVec3Uniform("viewPos", camera.Position);
 
-        lightingShader.setMat4Uniform("projection", projection);
-        lightingShader.setMat4Uniform("view", view);
+        // light properties
+        auto lightColor = glm::vec3(0.0f, 1.0f, 0.0f);
+        //lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0));
+        //lightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7));
+        //lightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3));
+        glm::vec3 diffuseColor = lightColor   * glm::vec3(0.5f); // decrease the influence
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
+        lightingShader.setVec3Uniform("light.ambient", ambientColor);
+        lightingShader.setVec3Uniform("light.diffuse", diffuseColor);
+        lightingShader.setVec3Uniform("light.specular", 1.0f, 1.0f, 1.0f);
+
+        // material properties
+        lightingShader.setVec3Uniform("material.ambient", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3Uniform("material.diffuse", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3Uniform("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
+        lightingShader.setFloatUniform("material.shininess", 64.0f);
 
         // world transformation
         auto model = glm::mat4(1.0f);
         lightingShader.setMat4Uniform("model", model);
+        lightingShader.setMat4Uniform("projection", projection);
+        lightingShader.setMat4Uniform("view", view);
 
         // render the cube
         glBindVertexArray(cubeVAO);

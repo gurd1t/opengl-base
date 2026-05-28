@@ -5,8 +5,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <shader.h>
 #include <camera.h>
+#include <model.h>
 
 #include <iostream>
 
@@ -36,13 +39,9 @@ int main() {
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
 
     // glfw window creation
     // --------------------
@@ -67,14 +66,17 @@ int main() {
         return -1;
     }
 
+    stbi_set_flip_vertically_on_load(true);
+
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
     // build and compile our shader z program
     // ------------------------------------
-    const Shader lightingShader("../src/2.1.basic_lighting.vs", "../src/2.1.basic_lighting.fs");
-    const Shader lightCubeShader("../src/2.1.light_cube.vs", "../src/2.1.light_cube.fs");
+    const Shader modelShader("../src/1.model_loading.vs", "../src/1.model_loading.fs");
+
+    const Model modelObj("../src/cube.glb");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -176,36 +178,16 @@ int main() {
         glm::mat4 view = camera.GetViewMatrix();
 
         // be sure to activate shader when setting uniforms/drawing objects
-        lightingShader.use();
-        lightingShader.setVec3Uniform("objectColor", 0.0f, 0.5f, 0.31f);
-        lightingShader.setVec3Uniform("lightColor", 1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3Uniform("lightPos", lightPos);
-        lightingShader.setVec3Uniform("viewPos", camera.Position);
-
-        lightingShader.setMat4Uniform("projection", projection);
-        lightingShader.setMat4Uniform("view", view);
+        modelShader.use();
+        modelShader.setMat4Uniform("projection", projection);
+        modelShader.setMat4Uniform("view", view);
 
         // world transformation
         auto model = glm::mat4(1.0f);
-        lightingShader.setMat4Uniform("model", model);
-
-        // render the cube
-        glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-        // also draw the lamp object
-        lightCubeShader.use();
-        lightCubeShader.setMat4Uniform("projection", projection);
-        lightCubeShader.setMat4Uniform("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        lightCubeShader.setMat4Uniform("model", model);
-
-        glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+        modelShader.setMat4Uniform("model", model);
+        modelObj.Draw(modelShader);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
