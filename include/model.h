@@ -194,7 +194,6 @@ private:
 inline unsigned int TextureFromFile(const char *path, const string &directory, bool gamma) {
     auto filename = string(path);
     filename = directory + '/' + filename;
-    cout << filename << endl;
 
     unsigned int textureID;
     glGenTextures(1, &textureID);
