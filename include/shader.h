@@ -13,18 +13,26 @@ class Shader {
 public:
     unsigned int programId;
 
-    Shader(const char *vertexPath, const char *fragmentPath) {
+    Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath = nullptr) {
         const unsigned int vShader = compileShader(GL_VERTEX_SHADER, vertexPath);
         const unsigned int fShader = compileShader(GL_FRAGMENT_SHADER, fragmentPath);
+        unsigned int gShader = 0;
 
         programId = glCreateProgram();
         glAttachShader(programId, vShader);
         glAttachShader(programId, fShader);
-        glLinkProgram(programId);
+        if (geometryPath != nullptr) {
+            gShader = compileShader(GL_GEOMETRY_SHADER, geometryPath);
+            glAttachShader(programId, gShader);
+        }
 
+        glLinkProgram(programId);
         checkCompileErrors(programId, "PROGRAM");
+
         glDeleteShader(vShader);
         glDeleteShader(fShader);
+        if (geometryPath != nullptr)
+            glDeleteShader(gShader);
     }
 
     // methods
@@ -47,6 +55,7 @@ public:
     void setVec2Uniform(const std::string &name, const glm::vec2 &value) const {
         glUniform2fv(glGetUniformLocation(programId, name.c_str()), 1, &value[0]);
     }
+
     void setVec2Uniform(const std::string &name, const float x, const float y) const {
         glUniform2f(glGetUniformLocation(programId, name.c_str()), x, y);
     }
@@ -54,6 +63,7 @@ public:
     void setVec3Uniform(const std::string &name, const glm::vec3 &value) const {
         glUniform3fv(glGetUniformLocation(programId, name.c_str()), 1, &value[0]);
     }
+
     void setVec3Uniform(const std::string &name, const float x, const float y, const float z) const {
         glUniform3f(glGetUniformLocation(programId, name.c_str()), x, y, z);
     }
@@ -61,6 +71,7 @@ public:
     void setVec4Uniform(const std::string &name, const glm::vec4 &value) const {
         glUniform4fv(glGetUniformLocation(programId, name.c_str()), 1, &value[0]);
     }
+
     void setVec4Uniform(const std::string &name, const float x, const float y, const float z, const float w) const {
         glUniform4f(glGetUniformLocation(programId, name.c_str()), x, y, z, w);
     }
