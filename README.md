@@ -1,4 +1,4 @@
-```
+```bash
 cd /path/to/LearnOpenGL
 mkdir build && cd build
 
