@@ -11,7 +11,7 @@ ninja
 ## or
 # cmake --build .
 
-## for some IDEs: 
+## in some IDEs for the LSP to function properly: 
 cd ..
 
 ## detect includes
