@@ -1,5 +1,5 @@
 ```bash
-cd /path/to/LearnOpenGL
+cd /path/to/root
 mkdir build && cd build
 
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -G Ninja ..
